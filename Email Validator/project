@@ -1,0 +1,86 @@
+# Import necessary modules from the tkinter library
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+import re
+
+# Create a class named App, inheriting from tk.Tk
+class App(tk.Tk):
+    # Constructor method for initializing the application
+    def __init__(self):
+        # Call the constructor of the parent class (tk.Tk)
+        super().__init__()
+
+        # Set the title of the main window
+        self.title('Tkinter Validation Demo')
+
+        # Create widgets and set up the GUI
+        self.create_widgets()
+
+    # Method to create GUI widgets
+    def create_widgets(self):
+        # Configure column weights to make the layout flexible
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=3)
+        self.columnconfigure(2, weight=1)
+
+        # Label for Email, positioned in the first column and row
+        ttk.Label(text='Email:').grid(row=0, column=0, padx=5, pady=5)
+
+        # Email entry field with validation
+        # Register validation and invalidation functions
+        vcmd = (self.register(self.validate), '%P')
+        ivcmd = (self.register(self.on_invalid),)
+
+        # Create an Entry widget for email input, with specified width
+        self.email_entry = ttk.Entry(self, width=50)
+        # Configure validation settings for focusout event
+        self.email_entry.config(validate='focusout', validatecommand=vcmd, invalidcommand=ivcmd)
+        # Position the entry widget in the second column, spanning two columns
+        self.email_entry.grid(row=0, column=1, columnspan=2, padx=5)
+
+        # Label to display error message, positioned in the second row and second column
+        self.label_error = ttk.Label(self, foreground='blue')
+        self.label_error.grid(row=1, column=1, sticky=tk.W, padx=5)
+
+        # Button to send, positioned in the fifth column
+        self.send_button = ttk.Button(text='Check', command=self.send_email)
+        self.send_button.grid(row=0, column=4, padx=5)
+
+    # Method to display an error message and change text color
+    def show_message(self, error='', color='black'):
+        self.label_error['text'] = error
+        self.email_entry['foreground'] = color
+
+    # Validation method for checking if the entered email is valid
+    def validate(self, value):
+        # Regular expression pattern for a valid email address
+        pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        # Check if the entered value matches the email pattern
+        if re.fullmatch(pattern, value) is None:
+            return False
+
+        # If valid, display a message indicating a valid email and change text color to green
+        self.show_message("Valid Email", "green")
+        return True
+
+    # Method called when an invalid email is detected
+    def on_invalid(self):
+        # Display an error message indicating an invalid email and change text color to red
+        self.show_message("Invalid Email", "red")
+        # Show an informational message box indicating an invalid email
+        messagebox.showinfo("Email", "Invalid Email ")
+
+    # Method to handle the action when the "Send" button is clicked
+    def send_email(self):
+        # Get the email address from the entry widget
+        email = self.email_entry.get()
+        # If the email is valid, show an informational message box indicating a valid email
+        if self.validate(email):
+            messagebox.showinfo("Email", "Valid Email ")
+
+# Main application loop
+if __name__ == '__main__':
+    # Create an instance of the App class and start the main loop
+    app = App()
+    app.mainloop()
